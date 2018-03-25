@@ -1,0 +1,10 @@
+<div>
+  <span>Topic Courses:</span>
+  <div>
+    <ul>
+      <li *ngFor="let course of topic.courses">
+        <app-courses [course]="course"></app-courses>
+      </li>
+    </ul>
+  </div>
+</div>
