@@ -1,10 +1,11 @@
-<div class="container">
+<div class="container" *ngIf="topic !== undefined">
   <h1>{{topic.name}}</h1>
   <p>{{topic.description}}</p>
   <div>
     <h3>Topic Courses:</h3>
     <div>
-      <ul>
+      <span *ngIf="topic.course === undefined || topic.courses.length <= 0; else elseBlock" >No Courses</span>
+      <ul #elseBlock>
         <li *ngFor="let course of topic.courses;  trackBy: trackByCourse">
           <app-courses [course]="course"></app-courses>
         </li>
@@ -14,7 +15,7 @@
   <div class="btn-group" role="group" aria-label="Basic example">
     <button class="btn btn-secondary" (click)="goBack()">Back</button>
     <button class="btn btn-secondary" (click)="deleteTopic()">Delete</button>
-    <button class="btn btn-secondary" (click)="addCourse()">Add Course</button>
+    <button class="btn btn-secondary" (click)="toggleNewCourseForm()">Add Course</button>
   </div>
-  <app-course-form [topic]="topic"  [hidden]="hideForm"></app-course-form>
+  <app-course-form (newCourseCreated)="addCourse($event)" [topicId]="topic.id" [hidden]="hideForm"></app-course-form>
 </div>

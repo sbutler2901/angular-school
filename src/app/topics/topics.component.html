@@ -3,9 +3,8 @@
   <ul>
     <li *ngFor="let topic of topics">
       <a routerLink="/topics/{{topic.id}}">{{ topic.name }}</a>
-      <!--<app-topic-detail [topic]="topic"></app-topic-detail>-->
     </li>
   </ul>
-  <button class="btn btn-secondary" (click)="addNewTopic()">Add New</button>
-  <app-topic-form [hidden]="hideForm"></app-topic-form>
+  <button class="btn btn-secondary" (click)="toggleNewTopicForm()">Add New</button>
+  <app-topic-form (newTopicCreated)="addTopic($event)" [hidden]="hideForm"></app-topic-form>
 </div>
