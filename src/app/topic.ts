@@ -6,7 +6,7 @@ export class Topic {
   description: string;
   courses: Course[];
 
-  constructor(id: string, name: string, description: string, courses: Course[] = []) {
+  constructor(id: string = '', name: string = '', description: string = '', courses: Course[] = []) {
     this.id = id;
     this.name = name;
     this.description = description;

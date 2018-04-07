@@ -1,10 +1,20 @@
-<div>
-  <span>Topic Courses:</span>
+<div class="container">
+  <h1>{{topic.name}}</h1>
+  <p>{{topic.description}}</p>
   <div>
-    <ul>
-      <li *ngFor="let course of topic.courses">
-        <app-courses [course]="course"></app-courses>
-      </li>
-    </ul>
+    <h3>Topic Courses:</h3>
+    <div>
+      <ul>
+        <li *ngFor="let course of topic.courses;  trackBy: trackByCourse">
+          <app-courses [course]="course"></app-courses>
+        </li>
+      </ul>
+    </div>
   </div>
+  <div class="btn-group" role="group" aria-label="Basic example">
+    <button class="btn btn-secondary" (click)="goBack()">Back</button>
+    <button class="btn btn-secondary" (click)="deleteTopic()">Delete</button>
+    <button class="btn btn-secondary" (click)="addCourse()">Add Course</button>
+  </div>
+  <app-course-form [topic]="topic"  [hidden]="hideForm"></app-course-form>
 </div>

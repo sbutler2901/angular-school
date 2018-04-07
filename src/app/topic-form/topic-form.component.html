@@ -1,0 +1,23 @@
+<div class="container">
+  <h1>Topic Form</h1>
+  <p *ngIf="topic">{{topic | json }}</p>
+  <form #topicForm="ngForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="id">ID</label>
+      <input id="id" name="id" type="text" class="form-control" required [(ngModel)]="topic.id" >
+    </div>
+
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" class="form-control" required [(ngModel)]="topic.name">
+    </div>
+
+    <div class="form-group">
+      <label for="desc">Description</label>
+      <input id="desc" name="desc" type="text" class="form-control" required [(ngModel)]="topic.description">
+    </div>
+
+    <button type="submit" class="btn btn-success" [disabled]="!topicForm.form.valid">Submit</button>
+
+  </form>
+</div>

@@ -11,6 +11,7 @@ import {TopicService} from '../services/topic.service';
 export class TopicsComponent implements OnInit {
 
   private topics: Topic[];
+  private hideForm = true;
 
   constructor(private topicService: TopicService) {}
 
@@ -24,4 +25,7 @@ export class TopicsComponent implements OnInit {
     this.topicService.getTopics().subscribe(topics => this.topics = topics);  // unwraps the observable topics
   }
 
+  addNewTopic() {
+    this.hideForm = !this.hideForm;
+  }
 }
