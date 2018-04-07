@@ -13,7 +13,6 @@ const httpOptions = {
 @Injectable() // tells Angular that this service might itself have injected dependencies.
 export class TopicService {
 
-  private topics: Topic[];
   private topicsURL = 'http://localhost:8081/topics';  // URL to web api
 
   constructor( private http: HttpClient ) { }
@@ -47,9 +46,13 @@ export class TopicService {
    * Delete a topic from the server
    * @param id - the id of the topic to be deleted
    */
-  deleteTopic(id: string): void {
-    const index: number = this.topics.findIndex(topic => topic.id === id);
-    this.topics.splice(index, 1);
+  deleteTopic(id: string): Observable<String> {
+      const url = `${this.topicsURL}/${id}`;
+
+      return this.http.delete<String>(url).pipe(
+          tap(() => this.log(`deleted topic id=${id}`)),
+          catchError(this.handleError<String>(`deleteTopic id=${id}`))
+      );
   }
 
   /**
@@ -66,13 +69,31 @@ export class TopicService {
   }
 
   /**
+   * Get all courses of a topic from the server
+   * @return - observable of courses being retrieved
+   */
+  getCourses(topicId: string): Observable<Course[]> {
+      const url = `${this.topicsURL}/${topicId}/courses`;
+
+      return this.http.get<Course[]>(url).pipe(
+          tap(() => ( this.log(`fetched courses for topic id ${topicId}`) )),
+          catchError(this.handleError('getCourses', []))
+      );
+  }
+
+  /**
    * Add a course under a specific topic to the server
-   * @param topicID - the id of the topic containing the course
+   * @param topicId - the id of the topic containing the course
    * @param course - the course to be added
    */
-  addCourse(topicID: string, course: Course) {
-    const topicx: Topic = this.topics.find(topic => topic.id === topicID);
-    topicx.courses.push(course);
+  addCourse(topicId: string, course: Course): Observable<Course> {
+    const url = `${this.topicsURL}/${topicId}/courses`;
+
+    console.log(`Adding course: ${course}`);
+    return this.http.post<Course>(url, course, httpOptions).pipe(
+        tap((nCourse: Course) => this.log(`added course w/ id=${nCourse.id}`)),
+        catchError(this.handleError<Course>('addCourse'))
+    );
   }
 
   /**

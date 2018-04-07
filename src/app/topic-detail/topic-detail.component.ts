@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Topic} from '../topic';
 import {ActivatedRoute} from '@angular/router';
 import { Location } from '@angular/common';
@@ -12,7 +12,7 @@ import {Course} from '../course';
 })
 export class TopicDetailComponent implements OnInit {
 
-  @Input() topic: Topic;
+  private topic: Topic = new Topic();
   private hideForm = true;
 
   constructor(
@@ -32,7 +32,16 @@ export class TopicDetailComponent implements OnInit {
 
     // Performs an asynchronous request for the topic
     this.topicService.getTopic(id)
-      .subscribe(topic => this.topic = topic);
+      .subscribe(topic => {
+        console.log(`Retrieved topic ${JSON.stringify(topic)}`);
+          this.topic = topic;
+          this.topic.courses = [];
+      });
+
+    this.topicService.getCourses(id).subscribe(courses => {
+        console.log(`Retrieved courses ${JSON.stringify(courses)}`);
+        this.topic.courses = courses;
+    });
   }
 
   deleteTopic(): void {
@@ -40,12 +49,17 @@ export class TopicDetailComponent implements OnInit {
     this.goBack();
   }
 
-  addCourse(): void {
+  toggleNewCourseForm(): void {
     this.hideForm = !this.hideForm;
   }
 
+  addCourse(course: Course) {
+
+    this.topic.courses.push(course);
+  }
+
   // Allows *ngfor for course component genertion to detect changes to the topic's course array
-  static trackByCourse(index: number, course: Course): string { return course.id; }
+  trackByCourse(index: number, course: Course): string { return course.id; }
 
   // Returns the browser to the previous page
   goBack(): void {

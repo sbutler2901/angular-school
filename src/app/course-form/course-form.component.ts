@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Course} from '../course';
-import {Topic} from '../topic';
 import {TopicService} from '../services/topic.service';
 
 @Component({
@@ -10,7 +9,8 @@ import {TopicService} from '../services/topic.service';
 })
 export class CourseFormComponent implements OnInit {
 
-  @Input() topic: Topic;
+  @Input() topicId: string;
+  @Output() newCourseCreated: EventEmitter<Course> = new EventEmitter<Course>();
   course: Course;
 
   constructor(private topicService: TopicService) { this.course = new Course(); }
@@ -18,6 +18,8 @@ export class CourseFormComponent implements OnInit {
   ngOnInit() {
   }
   onSubmit() {
-    this.topicService.addCourse(this.topic.id, this.course);
+    this.topicService.addCourse(this.topicId, this.course).subscribe(nCourse => {
+      this.newCourseCreated.emit(nCourse);
+    });
   }
 }
