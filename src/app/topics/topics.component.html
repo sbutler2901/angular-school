@@ -1,10 +1,13 @@
 <div class="container">
   <h2>My Topics</h2>
-  <ul>
-    <li *ngFor="let topic of topics">
-      <a routerLink="/topics/{{topic.id}}">{{ topic.name }}</a>
-    </li>
-  </ul>
+  <div>
+    <ul *ngIf="topics.length > 0; else elseBlock">
+      <li *ngFor="let topic of topics">
+        <a routerLink="/topics/{{topic.id}}">{{ topic.name }}</a>
+      </li>
+    </ul>
+    <ng-template #elseBlock><span>There are currently no topics</span></ng-template>
+  </div>
   <button class="btn btn-secondary" (click)="toggleNewTopicForm()">Add New</button>
   <app-topic-form (newTopicCreated)="addTopic($event)" [hidden]="hideForm"></app-topic-form>
 </div>
