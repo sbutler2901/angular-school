@@ -12,7 +12,8 @@ import {Course} from '../course';
 })
 export class TopicDetailComponent implements OnInit {
 
-  private topic: Topic = new Topic();
+  private topicId: string;
+  private topic: Topic;
   private hideForm = true;
 
   constructor(
@@ -22,47 +23,46 @@ export class TopicDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.topicId = this.route.snapshot.paramMap.get('id');  // retrieves the current topic's ID from the url
     this.getTopic();
+    this.getCourses();
   }
 
+  /** Retrieves the topic to be displayed by the component */
   getTopic(): void {
-    // The route.snapshot is a static image of the route information shortly after the component was created.
-    // The paramMap is a dictionary of route parameter values extracted from the URL. The "id" key returns the id of the hero to fetch.
-    const id: string = this.route.snapshot.paramMap.get('id');
-
-    // Performs an asynchronous request for the topic
-    this.topicService.getTopic(id)
-      .subscribe(topic => {
-        console.log(`Retrieved topic ${JSON.stringify(topic)}`);
+    this.topicService.getTopic(this.topicId).subscribe(topic => {
           this.topic = topic;
           this.topic.courses = [];
-      });
-
-    this.topicService.getCourses(id).subscribe(courses => {
-        console.log(`Retrieved courses ${JSON.stringify(courses)}`);
-        this.topic.courses = courses;
     });
   }
 
+  /** Retrieves the courses associated with this component's topic */
+  getCourses(): void {
+    this.topicService.getCourses(this.topicId).subscribe(courses => {
+      this.topic.courses = courses;
+    });
+  }
+
+  /** Deletes the topic being currently displayed */
   deleteTopic(): void {
-    this.topicService.deleteTopic(this.topic.id);
-    this.goBack();
+    this.topicService.deleteTopic(this.topic.id).subscribe( () => {
+      console.log('Deleted topic ' + this.topic.id);
+      this.goBack();
+    });
   }
 
-  toggleNewCourseForm(): void {
-    this.hideForm = !this.hideForm;
-  }
+  /** Toggles the display of the form for adding new courses */
+  toggleNewCourseForm(): void { this.hideForm = !this.hideForm; }
 
-  addCourse(course: Course) {
+  /**
+   * Adds a new course to the component after being added to the server
+   * Relies on an emitted event from the component form
+   */
+  addCourse(course: Course) { this.topic.courses.push(course); }
 
-    this.topic.courses.push(course);
-  }
-
-  // Allows *ngfor for course component genertion to detect changes to the topic's course array
+  /** Allows *ngfor for course component generation to detect changes to the topic's course array */
   trackByCourse(index: number, course: Course): string { return course.id; }
 
-  // Returns the browser to the previous page
-  goBack(): void {
-    this.location.back();
-  }
+  /** Returns the browser to the previous page */
+  goBack(): void { this.location.back(); }
 }
