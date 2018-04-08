@@ -15,8 +15,9 @@ export class CourseFormComponent implements OnInit {
 
   constructor(private topicService: TopicService) { this.course = new Course(); }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
+
+  /** Handles form submission and adds the new course */
   onSubmit() {
     this.topicService.addCourse(this.topicId, this.course).subscribe(nCourse => {
       this.newCourseCreated.emit(nCourse);

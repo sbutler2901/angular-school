@@ -5,6 +5,7 @@ import {Topic} from '../topic';
 import {Course} from '../course';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
+import {MessageService} from './message.service';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -15,7 +16,7 @@ export class TopicService {
 
   private topicsURL = 'http://localhost:8081/topics';  // URL to web api
 
-  constructor( private http: HttpClient ) { }
+  constructor( private http: HttpClient, private messageService: MessageService ) { }
 
   /**
    * Get all topics from the server
@@ -23,7 +24,7 @@ export class TopicService {
    */
   getTopics(): Observable<Topic[]> {
     return this.http.get<Topic[]>(this.topicsURL).pipe(
-        tap(() => ( this.log(`fetched topics`) )),
+        tap(() => this.log(`fetched topics`) ),
         catchError(this.handleError('getTopics', []))
       );
   }
@@ -46,12 +47,12 @@ export class TopicService {
    * Delete a topic from the server
    * @param id - the id of the topic to be deleted
    */
-  deleteTopic(id: string): Observable<String> {
+  deleteTopic(id: string): Observable<void> {
       const url = `${this.topicsURL}/${id}`;
 
-      return this.http.delete<String>(url).pipe(
+      return this.http.delete<void>(url).pipe(
           tap(() => this.log(`deleted topic id=${id}`)),
-          catchError(this.handleError<String>(`deleteTopic id=${id}`))
+          catchError(this.handleError<void>(`deleteTopic id=${id}`))
       );
   }
 
@@ -61,7 +62,6 @@ export class TopicService {
    * @return - observable of topic being added
    */
   addTopic(topic: Topic): Observable<Topic> {
-    console.log('Adding tpic ');
     return this.http.post<Topic>(this.topicsURL, topic, httpOptions).pipe(
       tap((ntopic: Topic) => this.log(`added topic w/ id=${ntopic.id}`)),
       catchError(this.handleError<Topic>('addTopic'))
@@ -89,7 +89,6 @@ export class TopicService {
   addCourse(topicId: string, course: Course): Observable<Course> {
     const url = `${this.topicsURL}/${topicId}/courses`;
 
-    console.log(`Adding course: ${course}`);
     return this.http.post<Course>(url, course, httpOptions).pipe(
         tap((nCourse: Course) => this.log(`added course w/ id=${nCourse.id}`)),
         catchError(this.handleError<Course>('addCourse'))
@@ -120,8 +119,5 @@ export class TopicService {
    * Log a TopicService message with the MessageService
    * @param message - message to be logged
    */
-  private log(message: string) {
-    console.log('TopicService: ' + message);
-    // this.messageService.add('TopicService: ' + message);
-  }
+  private log(message: string) { this.messageService.add('TopicService: ' + message); }
 }

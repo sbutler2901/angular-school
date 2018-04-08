@@ -14,9 +14,7 @@ export class TopicFormComponent implements OnInit {
   /** Notifies listeners that a new topic has been created and added */
   @Output() newTopicCreated: EventEmitter<Topic> = new EventEmitter<Topic>();
 
-  constructor(private topicService: TopicService) {
-    this.topic = new Topic();
-  }
+  constructor(private topicService: TopicService) { this.topic = new Topic(); }
 
   ngOnInit() { }
 
