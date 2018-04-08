@@ -23,6 +23,7 @@ export class TopicDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.topic = new Topic();
     this.topicId = this.route.snapshot.paramMap.get('id');  // retrieves the current topic's ID from the url
     this.getTopic();
     this.getCourses();
@@ -58,7 +59,14 @@ export class TopicDetailComponent implements OnInit {
    * Adds a new course to the component after being added to the server
    * Relies on an emitted event from the component form
    */
-  addCourse(course: Course) { this.topic.courses.push(course); }
+  addCourse(course: Course) {
+    console.log("received emited new course" + JSON.stringify(course));
+    this.topic.courses.push(new Course(
+        course.id,
+        course.name,
+        course.description
+    ));
+  }
 
   /** Allows *ngfor for course component generation to detect changes to the topic's course array */
   trackByCourse(index: number, course: Course): string { return course.id; }
