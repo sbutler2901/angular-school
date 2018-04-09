@@ -73,9 +73,9 @@ export class TopicDetailComponent implements OnInit {
 
   /**
    * Allows *ngfor for course component generation to detect changes to the topic's course array
-   * @param {number} index
-   * @param {Course} course
-   * @return {string}
+   * @param {number} index current index for iteration of ngforof
+   * @param {Course} course current course at this index
+   * @return {string} id of course used from tracking of changes
    */
   trackByCourse(index: number, course: Course): string { return course.id; }
 

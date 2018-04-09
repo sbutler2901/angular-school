@@ -22,11 +22,6 @@ export class CourseService {
   getCourse(topicId: string, courseId: string): Observable<Course> {
     const url = `${this.topicsURL}/${topicId}/courses/${courseId}`;
 
-    // return this.restDataService.getOne<Course>(url).pipe(
-    //   tap(() => this.log(`fetched topic id=${id}`)),
-    //   catchError(this.handleError<Course>(`getTopic id=${id}`))
-    // );
-
     return this.restDataService.getOne<Course>(url).pipe(
       tap(() => this.log(`fetched course w/ id ${courseId} for topic id ${topicId}`) ),
       catchError(this.handleError<Course>('getCourse '))
@@ -62,6 +57,12 @@ export class CourseService {
     );
   }
 
+  /**
+   * Updates a course on the server
+   * @param {string} topicId id of parent topic containing the course
+   * @param {Course} course the course being updated
+   * @return {Observable<Course>} observable to updated course
+   */
   updateCourse(topicId: string, course: Course): Observable<Course> {
     const url = `${this.topicsURL}/${topicId}/courses/${course.id}`;
 
@@ -71,6 +72,12 @@ export class CourseService {
     );
   }
 
+  /**
+   * Deletes a course from the server
+   * @param {string} topicId id of parent topic containing the course
+   * @param {string} courseId if of the course the course being deleted
+   * @return {Observable<void>} observable for indicating successful deletion
+   */
   deleteCourse(topicId: string, courseId: string): Observable<void> {
     const url = `${this.topicsURL}/${topicId}/courses/${courseId}`;
 

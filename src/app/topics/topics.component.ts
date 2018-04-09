@@ -32,7 +32,7 @@ export class TopicsComponent implements OnInit {
 
   /**
    * Called when the child component topic-form emits that a new topic has been added
-   * @param topic - the newly created topic to be added to view
+   * @param {Topic} topic the newly created topic to be added to view
    */
   addTopic(topic: Topic) { this.topics.push(topic); }
 }
