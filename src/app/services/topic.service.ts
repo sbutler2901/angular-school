@@ -1,105 +1,100 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import {Topic} from '../topic';
-import {Course} from '../course';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
+import {RestDataService} from './rest-data.service';
+import {of} from 'rxjs/observable/of';
 import {MessageService} from './message.service';
+import {CourseService} from './course.service';
 
-const httpOptions = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
 
 @Injectable() // tells Angular that this service might itself have injected dependencies.
 export class TopicService {
 
-  private topicsURL = 'http://localhost:8081/topics';  // URL to web api
+  private topicsURL = 'http://localhost:8080/topics';  // URL to web api
 
-  constructor( private http: HttpClient, private messageService: MessageService ) { }
-
-  /**
-   * Get all topics from the server
-   * @return - observable of topics being retrieved
-   */
-  getTopics(): Observable<Topic[]> {
-    return this.http.get<Topic[]>(this.topicsURL).pipe(
-        tap(() => this.log(`fetched topics`) ),
-        catchError(this.handleError('getTopics', []))
-      );
-  }
+  constructor( private restDataService: RestDataService, private courseService: CourseService, private messageService: MessageService ) { }
 
   /**
    * Get a specific topic from the server
-   * @param id - the id of the topic to be retrieved
-   * @return - observable of topic being retrieved
+   * @param {string} id the id of the topic to be retrieved
+   * @return {Observable<Topic>} observable of topic being retrieved
    */
   getTopic(id: string): Observable<Topic> {
     const url = `${this.topicsURL}/${id}`;
 
-    return this.http.get<Topic>(url).pipe(
+    return this.restDataService.getOne<Topic>(url).pipe(
       tap(() => this.log(`fetched topic id=${id}`)),
       catchError(this.handleError<Topic>(`getTopic id=${id}`))
     );
   }
 
   /**
-   * Delete a topic from the server
-   * @param id - the id of the topic to be deleted
+   * Get all topics from the server
+   * @return {Observable<Topic[]>} observable of topics being retrieved
    */
-  deleteTopic(id: string): Observable<void> {
-      const url = `${this.topicsURL}/${id}`;
-
-      return this.http.delete<void>(url).pipe(
-          tap(() => this.log(`deleted topic id=${id}`)),
-          catchError(this.handleError<void>(`deleteTopic id=${id}`))
-      );
+  getTopics(): Observable<Topic[]> {
+    return this.restDataService.getMany<Topic>(this.topicsURL).pipe(
+      tap(() => this.log(`fetched topics`) ),
+      catchError(this.handleError<Topic[]>('getMany ', []))
+    );
   }
 
   /**
    * Add a new topic to the server.
-   * @param topic - the topic to be added
-   * @return - observable of topic being added
+   * @param {Topic} topic the topic to be added
+   * @return {Observable<Topic>} observable of topic being added
    */
   addTopic(topic: Topic): Observable<Topic> {
-    return this.http.post<Topic>(this.topicsURL, topic, httpOptions).pipe(
+    return this.restDataService.add<Topic>(this.topicsURL, topic).pipe(
       tap((ntopic: Topic) => this.log(`added topic w/ id=${ntopic.id}`)),
       catchError(this.handleError<Topic>('addTopic'))
     );
   }
 
   /**
-   * Get all courses of a topic from the server
-   * @return - observable of courses being retrieved
+   * Updates a topic on the server
+   * @param {Topic} topic the topic to be updated
+   * @return {Observable<Topic>} the updated topic
    */
-  getCourses(topicId: string): Observable<Course[]> {
-      const url = `${this.topicsURL}/${topicId}/courses`;
+  updateTopic(topic: Topic): Observable<Topic> {
+    const url = `${this.topicsURL}/${topic.id}`;
 
-      return this.http.get<Course[]>(url).pipe(
-          tap(() => ( this.log(`fetched courses for topic id ${topicId}`) )),
-          catchError(this.handleError('getCourses', []))
-      );
+    return this.restDataService.update<Topic>(url, topic).pipe(
+      tap((ntopic: Topic) => this.log(`added topic w/ id=${ntopic.id}`)),
+      catchError(this.handleError<Topic>('addTopic'))
+    );
   }
 
   /**
-   * Add a course under a specific topic to the server
-   * @param topicId - the id of the topic containing the course
-   * @param course - the course to be added
+   * Delete a topic from the server
+   * @param {string} id the id of the topic to be deleted
+   * @param {Topic} topic the topic being deleted
    */
-  addCourse(topicId: string, course: Course): Observable<Course> {
-    const url = `${this.topicsURL}/${topicId}/courses`;
+  deleteTopic(topic: Topic): Observable<void> {
+    const url = `${this.topicsURL}/${topic.id}`;
 
-    return this.http.post<Course>(url, course, httpOptions).pipe(
-        tap((nCourse: Course) => this.log(`added course w/ id=${nCourse.id}`)),
-        catchError(this.handleError<Course>('addCourse'))
+    // this.courseService.deleteCourses(topic.id, topic.courses).subscribe({
+    //   next: () => {},
+    //   complete: () => {
+    //     return this.restDataService.delete(url).pipe(
+    //         tap(() => this.log(`deleted topic id=${topic.id}`)),
+    //         catchError(this.handleError<void>(`deleteTopic id=${topic.id}`))
+    //     );
+    //   }
+    // });
+
+    return this.restDataService.delete(url).pipe(
+        tap(() => this.log(`deleted topic id=${topic.id}`)),
+        catchError(this.handleError<void>(`deleteTopic id=${topic.id}`))
     );
   }
 
   /**
    * Handle Http operation that failed.
-   * Let the app continue.
-   * @param operation - name of the operation that failed
-   * @param result - optional value to return as the observable result
+   * @param {string} operation name of the operation that failed
+   * @param {T} result optional value to return as the observable result
+   * @return {(error: any) => Observable<T>}
    */
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
@@ -117,7 +112,8 @@ export class TopicService {
 
   /**
    * Log a TopicService message with the MessageService
-   * @param message - message to be logged
+   * @param {string} message message to be logged
    */
   private log(message: string) { this.messageService.add('TopicService: ' + message); }
+
 }

@@ -13,6 +13,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { TopicDetailComponent } from './topic-detail/topic-detail.component';
 import { TopicFormComponent } from './topic-form/topic-form.component';
 import { CourseFormComponent } from './course-form/course-form.component';
+import {RestDataService} from './services/rest-data.service';
+import {CourseService} from './services/course.service';
 
 
 @NgModule({
@@ -31,7 +33,7 @@ import { CourseFormComponent } from './course-form/course-form.component';
     FormsModule,
     HttpClientModule
   ],
-  providers: [ TopicService, MessageService ],
+  providers: [ TopicService, MessageService, RestDataService, CourseService ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

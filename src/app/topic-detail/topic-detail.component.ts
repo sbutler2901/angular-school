@@ -4,6 +4,8 @@ import {ActivatedRoute} from '@angular/router';
 import { Location } from '@angular/common';
 import {TopicService} from '../services/topic.service';
 import {Course} from '../course';
+import {CourseService} from '../services/course.service';
+import {catchError, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-topic-detail',
@@ -17,9 +19,10 @@ export class TopicDetailComponent implements OnInit {
   private hideForm = true;
 
   constructor(
-    private route: ActivatedRoute,        // holds information about the route to this instance
-    private topicService: TopicService,   // gets topic data from the remote server
-    private location: Location            // an Angular service for interacting with the browser
+    private route: ActivatedRoute,          // holds information about the route to this instance
+    private location: Location,             // an Angular service for interacting with the browser
+    private topicService: TopicService,     // gets topic data from the remote server
+    private courseService: CourseService    // gets course data from the remote server
   ) { }
 
   ngOnInit() {
@@ -39,16 +42,24 @@ export class TopicDetailComponent implements OnInit {
 
   /** Retrieves the courses associated with this component's topic */
   getCourses(): void {
-    this.topicService.getCourses(this.topicId).subscribe(courses => {
+    this.courseService.getCourses(this.topicId).subscribe(courses => {
       this.topic.courses = courses;
     });
   }
 
   /** Deletes the topic being currently displayed */
   deleteTopic(): void {
-    this.topicService.deleteTopic(this.topic.id).subscribe( () => {
-      console.log('Deleted topic ' + this.topic.id);
-      this.goBack();
+
+    this.courseService.deleteCourses(this.topic.id, this.topic.courses).subscribe({
+      next: () => {},
+      complete: () => {
+        this.topicService.deleteTopic(this.topic).subscribe({
+          next: () => {},
+          complete: () => {
+            // this.goBack()
+            }
+        });
+      }
     });
   }
 
@@ -58,9 +69,10 @@ export class TopicDetailComponent implements OnInit {
   /**
    * Adds a new course to the component after being added to the server
    * Relies on an emitted event from the component form
+   * @param {Course} course course to be added
    */
   addCourse(course: Course) {
-    console.log("received emited new course" + JSON.stringify(course));
+    console.log('received emited new course' + JSON.stringify(course));
     this.topic.courses.push(new Course(
         course.id,
         course.name,
@@ -68,7 +80,12 @@ export class TopicDetailComponent implements OnInit {
     ));
   }
 
-  /** Allows *ngfor for course component generation to detect changes to the topic's course array */
+  /**
+   * Allows *ngfor for course component generation to detect changes to the topic's course array
+   * @param {number} index current index for iteration of ngforof
+   * @param {Course} course current course at this index
+   * @return {string} id of course used from tracking of changes
+   */
   trackByCourse(index: number, course: Course): string { return course.id; }
 
   /** Returns the browser to the previous page */
