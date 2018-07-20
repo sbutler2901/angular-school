@@ -5,11 +5,12 @@ import {Observable} from 'rxjs/Observable';
 import {Course} from '../course';
 import {catchError, tap} from 'rxjs/operators';
 import {of} from 'rxjs/observable/of';
+import {merge} from 'rxjs/observable/merge';
 
 @Injectable()
 export class CourseService {
 
-  private topicsURL = 'http://localhost:8081/topics';  // URL to web api
+  private topicsURL = 'http://localhost:8080/topics';  // URL to web api
 
   constructor( private restDataService: RestDataService, private messageService: MessageService ) { }
 
@@ -87,6 +88,18 @@ export class CourseService {
     );
   }
 
+  deleteCourses(topicId: string, courses: Course[]): Observable<Observable<void>> {
+    let url: string;
+    const obs: Observable<void>[] = [];
+
+    for ( let course of courses ) {
+      this.log(`Deleting course: ${course.id}`);
+      url = `${this.topicsURL}/${topicId}/courses/${course.id}`;
+      obs.push(this.restDataService.delete(url));
+    }
+    return merge(obs);
+  }
+
   /**
    * Handle Http operation that failed.
    * @param {string} operation name of the operation that failed
@@ -108,9 +121,9 @@ export class CourseService {
   }
 
   /**
-   * Log a TopicService message with the MessageService
+   * Log a CourseService message with the MessageService
    * @param {string} message message to be logged
    */
-  private log(message: string) { this.messageService.add('TopicService: ' + message); }
+  private log(message: string) { this.messageService.add('CourseService: ' + message); }
 
 }

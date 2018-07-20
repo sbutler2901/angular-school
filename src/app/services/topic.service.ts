@@ -5,14 +5,15 @@ import { catchError, tap } from 'rxjs/operators';
 import {RestDataService} from './rest-data.service';
 import {of} from 'rxjs/observable/of';
 import {MessageService} from './message.service';
+import {CourseService} from './course.service';
 
 
 @Injectable() // tells Angular that this service might itself have injected dependencies.
 export class TopicService {
 
-  private topicsURL = 'http://localhost:8081/topics';  // URL to web api
+  private topicsURL = 'http://localhost:8080/topics';  // URL to web api
 
-  constructor( private restDataService: RestDataService, private messageService: MessageService ) { }
+  constructor( private restDataService: RestDataService, private courseService: CourseService, private messageService: MessageService ) { }
 
   /**
    * Get a specific topic from the server
@@ -68,14 +69,25 @@ export class TopicService {
   /**
    * Delete a topic from the server
    * @param {string} id the id of the topic to be deleted
+   * @param {Topic} topic the topic being deleted
    */
-  deleteTopic(id: string): Observable<void> {
-      const url = `${this.topicsURL}/${id}`;
+  deleteTopic(topic: Topic): Observable<void> {
+    const url = `${this.topicsURL}/${topic.id}`;
 
-      return this.restDataService.delete(url).pipe(
-          tap(() => this.log(`deleted topic id=${id}`)),
-          catchError(this.handleError<void>(`deleteTopic id=${id}`))
-      );
+    // this.courseService.deleteCourses(topic.id, topic.courses).subscribe({
+    //   next: () => {},
+    //   complete: () => {
+    //     return this.restDataService.delete(url).pipe(
+    //         tap(() => this.log(`deleted topic id=${topic.id}`)),
+    //         catchError(this.handleError<void>(`deleteTopic id=${topic.id}`))
+    //     );
+    //   }
+    // });
+
+    return this.restDataService.delete(url).pipe(
+        tap(() => this.log(`deleted topic id=${topic.id}`)),
+        catchError(this.handleError<void>(`deleteTopic id=${topic.id}`))
+    );
   }
 
   /**

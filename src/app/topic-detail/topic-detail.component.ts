@@ -5,6 +5,7 @@ import { Location } from '@angular/common';
 import {TopicService} from '../services/topic.service';
 import {Course} from '../course';
 import {CourseService} from '../services/course.service';
+import {catchError, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-topic-detail',
@@ -48,9 +49,17 @@ export class TopicDetailComponent implements OnInit {
 
   /** Deletes the topic being currently displayed */
   deleteTopic(): void {
-    this.topicService.deleteTopic(this.topic.id).subscribe( () => {
-      console.log('Deleted topic ' + this.topic.id);
-      this.goBack();
+
+    this.courseService.deleteCourses(this.topic.id, this.topic.courses).subscribe({
+      next: () => {},
+      complete: () => {
+        this.topicService.deleteTopic(this.topic).subscribe({
+          next: () => {},
+          complete: () => {
+            // this.goBack()
+            }
+        });
+      }
     });
   }
 
